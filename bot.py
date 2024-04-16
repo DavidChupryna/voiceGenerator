@@ -1,7 +1,7 @@
 import logging
 import telebot
 from database import limit_users, check_user_in_db, create_table, insert_data
-from config import config, bot_token
+from config import bot_token
 from validators import is_tts_symbol_limit
 from info import bot_templates
 from speechApi import send_request
@@ -22,7 +22,6 @@ def say_start(message):
         bot.send_message(message.chat.id, bot_templates['user_limit'])
     else:
         insert_data(user_id)
-        # bot.send_message(message.chat.id, f'Для генерации напишите /tts')
 
 
 @bot.message_handler(commands=['help'])
@@ -45,7 +44,7 @@ def text_to_speech(message):
     user_id = message.from_user.id
 
     if message.text.isdigit():
-        bot.send_message(message.chat.id, 'Вветите текст, а не число!!')
+        bot.send_message(message.chat.id, 'Введите текст, а не число!')
 
     else:
         symbols, msg = is_tts_symbol_limit(message)
@@ -54,15 +53,13 @@ def text_to_speech(message):
             bot.send_message(message.chat.id, msg)
 
         else:
-            print(message.text)
-
             insert_data(user_id, message.text, symbols)
             success, response = send_request(message.text)
 
             if success:
                 with open("output.ogg", "wb") as audio_file:
                     audio_file.write(response)
-                bot.send_audio(message.chat.id, response)
+                bot.send_audio(message.chat.id, audio=open('output.ogg', 'rb'))
                 logging.info("Аудиофайл успешно сохранен как output.ogg")
             else:
                 logging.error("Ошибка:", response)
@@ -75,6 +72,11 @@ def send_logs(message):
     with open("log_file.txt", "rb") as f:
         bot.send_document(message.chat.id, f)
         logging.info("Use command DEBUG")
+
+
+@bot.message_handler(content_types=['text'])
+def text_handler(message):
+    bot.send_message(message.chat.id, bot_templates['for_text'])
 
 
 bot.infinity_polling()

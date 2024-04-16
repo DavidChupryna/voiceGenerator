@@ -1,5 +1,15 @@
+import logging
+
 import requests
 from config import config
+
+
+logging.basicConfig(
+    level=config['LOGGING']['level'],
+    format=config['LOGGING']['format'],
+    filename=config['LOGGING']['filename'],
+    filemode=config['LOGGING']['filemod']
+)
 
 
 def send_request(text):
@@ -10,9 +20,11 @@ def send_request(text):
         'Authorization': f'Bearer {iam_token}',
     }
     data = {
+        'speed': 1,
+        'emotion': 'evil',
         'text': text,
         'lang': 'ru-RU',
-        'voice': 'filipp',
+        'voice': 'omazh',
         'folderId': folder_id,
     }
     response = requests.post(config['TTS']['URL'], headers=headers, data=data)
