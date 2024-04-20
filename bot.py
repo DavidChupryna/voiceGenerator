@@ -59,7 +59,7 @@ def speech_to_text(message):
             status, text = send_request(file)
 
             if status:
-                insert_data(user_id, message.text, blocks)
+                insert_data(user_id, text, blocks)
                 bot.send_message(message.chat.id, text, reply_to_message_id=message.id)
                 logging.info("Аудиофайл успешно переработан в текст.")
             else:
