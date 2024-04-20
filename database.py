@@ -12,7 +12,7 @@ def create_table():
             id INTEGER PRIMARY KEY,
             user_id INTEGER,
             text TEXT,
-            tts_symbols INTEGER);
+            stt_blocks INTEGER);
         ''')
         logging.info('table was created')
     except sqlite3.Error as error:
@@ -55,13 +55,13 @@ def check_user_in_db(user_id):
         con.close()
 
 
-def insert_data(user_id=None, text=None, tts_symbols=0):
+def insert_data(user_id=None, text=None, stt_blocks=0):
     try:
         con = sqlite3.connect('speech_kit.db')
         cur = con.cursor()
-        cur.execute(f'INSERT INTO messages(user_id, text, tts_symbols)'
+        cur.execute(f'INSERT INTO messages(user_id, text, stt_blocks)'
                     f'VALUES (?, ?, ?);',
-                    (user_id, text, tts_symbols,))
+                    (user_id, text, stt_blocks,))
         logging.info('data is written to the database')
         con.commit()
     except sqlite3.Error as error:
@@ -70,17 +70,17 @@ def insert_data(user_id=None, text=None, tts_symbols=0):
         con.close()
 
 
-def count_all_symbol(user_id):
+def count_all_blocks(user_id):
     try:
         with sqlite3.connect("speech_kit.db") as con:
             cursor = con.cursor()
-            cursor.execute('''SELECT SUM(tts_symbols) FROM messages WHERE user_id=?''', (user_id,))
+            cursor.execute('''SELECT SUM(stt_blocks) FROM messages WHERE user_id=?''', (user_id,))
             data = cursor.fetchone()
             if data and data[0]:
-                logging.info('symbols have been counted')
+                logging.info('blocks have been counted')
                 return data[0]
             else:
-                logging.info('symbols column is empty')
+                logging.info('blocks column is empty')
                 return 0
     except sqlite3.Error as error:
         logging.error(f'Error database:', error)

@@ -2,7 +2,7 @@ import logging
 import telebot
 from database import limit_users, check_user_in_db, create_table, insert_data
 from config import bot_token
-from validators import is_tts_symbol_limit
+from validators import is_stt_block_limit
 from info import bot_templates
 from speechApi import send_request
 
@@ -29,42 +29,43 @@ def say_help(message):
     bot.send_message(message.chat.id, bot_templates['say_help'])
 
 
-@bot.message_handler(commands=['tts'])
-def tts_handler(message):
+@bot.message_handler(commands=['stt'])
+def stt_handler(message):
     user_id = message.from_user.id
     checked_user = check_user_in_db(user_id)
     if checked_user:
         bot.send_message(message.chat.id, bot_templates['say_generate'])
-        bot.register_next_step_handler(message, text_to_speech)
+        bot.register_next_step_handler(message, speech_to_text)
     else:
         bot.send_message(message.chat.id, bot_templates['hard_user_limit'])
 
 
-def text_to_speech(message):
+def speech_to_text(message):
     user_id = message.from_user.id
 
-    if message.text.isdigit():
-        bot.send_message(message.chat.id, 'Введите текст, а не число!')
+    if not message.voice:
+        bot.send_message(message.chat.id, bot_templates['if_not_voice'])
 
     else:
-        symbols, msg = is_tts_symbol_limit(message)
+        blocks, msg = is_stt_block_limit(message, message.voice.duration)
 
-        if not symbols:
+        if not blocks:
             bot.send_message(message.chat.id, msg)
 
         else:
-            insert_data(user_id, message.text, symbols)
-            success, response = send_request(message.text)
+            file_id = message.voice.file_id
+            file_info = bot.get_file(file_id)
+            file = bot.download_file(file_info.file_path)
+            status, text = send_request(file)
 
-            if success:
-                with open("output.ogg", "wb") as audio_file:
-                    audio_file.write(response)
-                bot.send_audio(message.chat.id, audio=open('output.ogg', 'rb'))
-                logging.info("Аудиофайл успешно сохранен как output.ogg")
+            if status:
+                insert_data(user_id, message.text, blocks)
+                bot.send_message(message.chat.id, text, reply_to_message_id=message.id)
+                logging.info("Аудиофайл успешно переработан в текст.")
             else:
-                logging.error("Ошибка:", response)
+                logging.error("Ошибка:", text)
 
-    bot.register_next_step_handler(message, text_to_speech)
+    bot.register_next_step_handler(message, speech_to_text)
 
 
 @bot.message_handler(commands=['debug'])

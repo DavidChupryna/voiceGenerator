@@ -1,6 +1,7 @@
 import configparser
 
 config = configparser.ConfigParser()
+
 config['LOGGING'] = {
     'level': 'INFO',
     'format': '%%(asctime)s - %%(name)s - %%(levelname)s - %%(message)s',
@@ -8,17 +9,16 @@ config['LOGGING'] = {
     'filemod': 'w'
     }
 
-config['TTS'] = {
-    'URL': 'https://tts.api.cloud.yandex.net/speech/v1/tts:synthesize',
-    'IAM_TOKEN': 't1.9euelZqRy5mTkJGUy4nLlcuKns_Lju3rnpWay52RlYuSns_Hx8mZlYnNlZfl9PcpSwVP-e8MYwb43fT3aXkCT_nvDGMG-M3n9euelZrMmsnNkYyTkZeJyseLi86LkO_8xeuelZrMmsnNkYyTkZeJyseLi86LkL3rnpWaks7Lj8aWls7LiciTkZSSm4213oac0ZyQko-Ki5rRi5nSnJCSj4qLmtKSmouem56LntKMng.f7C5IsAAr-elBeh1u1Z20RIT65uls3L6ET5wkMWEZRwnQrbVoznXa5YuX6OikUBYP8eFQpOr3j2cgqInwVjVBg',
+config['STT'] = {
+    'URL': 'https://stt.api.cloud.yandex.net/speech/v1/stt:recognize',
+    'IAM_TOKEN': 't1.9euelZqQzZqKzsiQiZyLyJyclcqczO3rnpWay52RlYuSns_Hx8mZlYnNlZfl9PcCWW9O-e8CPhWB3fT3QgdtTvnvAj4Vgc3n9euelZqOns6JysfKlZKSlpOWkInJyu_8xeuelZqOns6JysfKlZKSlpOWkInJyr3rnpWayZzOy4zHlMyeycqZicyYyZ213oac0ZyQko-Ki5rRi5nSnJCSj4qLmtKSmouem56LntKMng.RQI4zc3btXXfz7I8LL_aEMAxFNjtQLVv3D3bcHtg9EU4bj1lcznLkm8AfnfMV1JUbhcwxVQBvqRkCSnVvL2fAA',
     'FOLDER_ID': 'b1gmco3nm6e4ud4orfv9'
     }
 
 config['LIMITS'] = {
     'MAX_USERS': '2',
-    'MAX_USER_TTS_SYMBOLS': '100',
-    'MAX_TTS_SYMBOLS': '1000',
+    'MAX_USER_STT_BLOCKS': '12',
     }
 
 
-bot_token = ('7067069927:AAHOp05z2tcqb5OQwvjwIu7y1QgLqhRgcSI')
+bot_token = '6873991240:AAHLs0o3pbZx0i5iZA4fE9FUCmA4DJ_p2W4'

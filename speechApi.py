@@ -1,5 +1,4 @@
 import logging
-
 import requests
 from config import config
 
@@ -12,25 +11,28 @@ logging.basicConfig(
 )
 
 
-def send_request(text):
-    iam_token = config['TTS']['IAM_TOKEN']
-    folder_id = config['TTS']['FOLDER_ID']
+def send_request(data):
+    iam_token = config['STT']['IAM_TOKEN']
+    folder_id = config['STT']['FOLDER_ID']
+
+    params = "&".join([
+        "topic=general",
+        f"folderId={folder_id}",
+        "lang=ru-RU"
+    ])
 
     headers = {
         'Authorization': f'Bearer {iam_token}',
     }
-    data = {
-        'speed': 1,
-        'emotion': 'evil',
-        'text': text,
-        'lang': 'ru-RU',
-        'voice': 'omazh',
-        'folderId': folder_id,
-    }
-    response = requests.post(config['TTS']['URL'], headers=headers, data=data)
 
-    if response.status_code == 200:
-        return True, response.content
+    response = requests.post(
+        f"{config['STT']['URL']}?{params}",
+        headers=headers,
+        data=data
+    )
+
+    decoded_data = response.json()
+    if decoded_data.get("error_code") is None:
+        return True, decoded_data.get("result")
     else:
         return False, "При запросе в SpeechKit возникла ошибка"
-

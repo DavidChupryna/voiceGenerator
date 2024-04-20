@@ -1,20 +1,20 @@
+import math
+from database import count_all_blocks
 from config import config
-from database import count_all_symbol
 
 
-def is_tts_symbol_limit(message):
+def is_stt_block_limit(message, duration):
     user_id = message.from_user.id
-    text_symbols = len(message.text)
 
-    all_symbols = count_all_symbol(user_id) + text_symbols
+    audio_blocks = math.ceil(duration / 15)
+    all_blocks = count_all_blocks(user_id) + audio_blocks
 
-    if all_symbols >= int(config['LIMITS']['MAX_TTS_SYMBOLS']):
-        msg = (f"Превышен общий лимит SpeechKit TTS {config['LIMITS']['MAX_TTS_SYMBOLS']}. Использовано: "
-               f"{all_symbols} символов. Доступно: {int(config['LIMITS']['MAX_TTS_SYMBOLS']) - all_symbols}")
-        return False, msg
+    if duration >= 30:
+        msg = "SpeechKit STT работает с голосовыми сообщениями меньше 30 секунд"
+        return None, msg
 
-    if text_symbols >= int(config['LIMITS']['MAX_USER_TTS_SYMBOLS']):
-        msg = f"Превышен лимит SpeechKit TTS на запрос {config['LIMITS']['MAX_USER_TTS_SYMBOLS']}, в сообщении {text_symbols} символов"
-        return False, msg
+    if all_blocks >= int(config['LIMITS']['MAX_USER_STT_BLOCKS']):
+        msg = f"Превышен общий лимит SpeechKit STT {int(config['LIMITS']['MAX_USER_STT_BLOCKS'])}. Использовано {all_blocks} блоков. Доступно: {int(config['LIMITS']['MAX_USER_STT_BLOCKS']) - all_blocks}"
+        return None, msg
 
-    return len(message.text), 'Ваш запрос соответствует количеству символов'
+    return audio_blocks, None
